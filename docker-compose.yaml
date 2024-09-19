@@ -1,0 +1,41 @@
+services:
+  pihole:
+    container_name: pihole
+    image: abrunk/piholedoh32bit:latest
+    restart: unless-stopped
+    cap_add:
+      - NET_ADMIN
+    environment:
+      TZ: America/Toronto
+      WEBPASSWORD: "CHANGE_ME"
+      DHCP_IPv6: false
+      FTLCONF_NO_IPV6: true  # Disable Pi-hole IPv6 support
+      DNS1: 127.0.0.1#5053 # The cloudlflared instance added to this PiHole image
+      DHCP_ACTIVE: true  # Enable DHCP
+      DHCP_START: 192.168.2.10  # DHCP IP range start
+      DHCP_END: 192.168.2.250  # DHCP IP range end
+      DHCP_ROUTER: 192.168.2.1  # Gateway (usually your router)
+      DHCP_LEASETIME: 48  # Lease time in hours
+      DNSMASQ_LISTENING: all  # Listen on all interfaces
+    volumes:
+      - ./pihole/etc-pihole:/etc/pihole
+      - ./pihole/etc-dnsmasq.d:/etc/dnsmasq.d
+    ports:
+      - 53/tcp
+      - 53/udp
+      - 67/udp
+      - 80/tcp
+    networks:
+      pihole_net:
+        ipv4_address: 192.168.2.100
+
+networks:
+  pihole_net:
+    driver: macvlan
+    driver_opts:
+      parent: enxc955cd64da0e # Find the name of your eth0 interface on the Docker host (ip link show)
+    ipam:
+      config:
+        - subnet: 192.168.2.0/24 
+          gateway: 192.168.2.1 # Set to your router IP
+
