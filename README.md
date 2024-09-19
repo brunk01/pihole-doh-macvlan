@@ -1,0 +1,1 @@
+I switched from a cable provider to fibre optic home internet and the new provider doesn't allow me to set a custom DNS server. To resolve it, I disabled the DHCP server on my providers modem and I created this PiHole image that will take over DHCP duties and and allow mw to set the PiHole as the DNS lookup.
